@@ -11,9 +11,7 @@ def get_if_contains(elem: Tag, keyword: str) -> typing.Union[str, None]:
     :param keyword: The keyword being looked for.
     :return: Text content of the tag or None.
     """
-    if keyword in (text := elem.text):
-        return text
-    return None
+    return text if keyword in (text := elem.text) else None
 
 
 def main() -> None:
