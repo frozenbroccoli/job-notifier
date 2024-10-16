@@ -1,7 +1,10 @@
+import time
 import typing
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 import requests
+import linkedin
+import interactions
 
 
 def get_if_contains(elem: Tag, keyword: str) -> typing.Union[str, None]:
@@ -11,12 +14,12 @@ def get_if_contains(elem: Tag, keyword: str) -> typing.Union[str, None]:
     :param keyword: The keyword being looked for.
     :return: Text content of the tag or None.
     """
-    return text if keyword in (text := elem.text) else None
+    return text if keyword in (text := elem.get_text()) else None
 
 
-def main() -> None:
+def give_demo() -> None:
     """
-    Main function.
+    Beautiful soup demo.
     :return: None
     """
     page = requests.get(
@@ -28,6 +31,19 @@ def main() -> None:
         valid for elem in soup.find_all('p') if (valid := get_if_contains(elem, 'soup')) is not None
     ]
     print(paragraphs)
+
+
+def main() -> None:
+    """
+    Main function.
+    :return: None
+    """
+    linkedin.login()
+    interactions.wait_randomly(3, 6)
+    linkedin.search_jobs(
+        query='react js',
+        date_posted='past_day'
+    )
 
 
 if __name__ == '__main__':
