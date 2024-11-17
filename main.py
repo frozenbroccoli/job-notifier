@@ -38,12 +38,31 @@ def main() -> None:
     Main function.
     :return: None
     """
-    linkedin.login()
-    interactions.wait_randomly(3, 6)
-    linkedin.search_jobs(
-        query='react js',
-        date_posted='past_day'
+    # linkedin.login()
+    # interactions.wait_randomly(3, 6)
+    # linkedin.search_jobs(
+    #     query='react js',
+    #     date_posted='past_day'
+    # )
+    results = linkedin.get_job_listings(
+        keywords='Python+Developer',
+        location='Kolkata',
+        distance=25,
+        job_type='fullTime',
+        time_posted='pastDay',
+        job_arrangement='onSite',
+        num_results=30
     )
+    print(results)
+    # response = requests.get(
+    #     url=url,
+    #     headers={'content-type': 'html'}
+    # )
+    # # with open('results.html', 'w') as file:
+    # #     file.write(response.text)
+    #
+    # print(response.text)
+    # pass
 
 
 if __name__ == '__main__':
