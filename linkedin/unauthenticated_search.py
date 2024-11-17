@@ -1,9 +1,19 @@
 import typing
+import re
 import requests
 from urllib.parse import urlunparse, urlencode
 from bs4 import BeautifulSoup
-from chromedriver.user_agent import user_agent
+from fake_useragent import UserAgent
 from .urls import UrlComponents
+
+
+def map_job_arrangements(job_arrangements: typing.List[typing.Literal['onSite', 'hybrid', 'remote']]):
+    arrangement_map = {
+        'onSite': '1',
+        'hybrid': '2',
+        'remote': '3'
+    }
+    return [arrangement_map[arrangement] for arrangement in job_arrangements if arrangement in arrangement_map]
 
 
 def construct_search_url(
@@ -12,7 +22,7 @@ def construct_search_url(
         distance: int,
         job_type: str,
         time_posted: str,
-        job_arrangement: str,
+        job_arrangements: typing.List[typing.Literal['onSite', 'hybrid', 'remote']],
         start: int
 ) -> str:
     """
@@ -23,7 +33,7 @@ def construct_search_url(
     :param distance: Max distance of job from desired location in kms.
     :param job_type: Type of job, full-time, part-time, etc.
     :param time_posted: Job posting time relative to time of search.
-    :param job_arrangement: On-site, remote, etc.
+    :param job_arrangements: On-site, remote, etc.
     :param start: Start index of search results.
     :return: The search url.
     """
@@ -53,14 +63,7 @@ def construct_search_url(
         case _:
             raise ValueError(f'Time posted {time_posted} is not pastDay, pastWeek, or pastMonth')
 
-    arrangements = []
-    if 'onSite' in job_arrangement:
-        arrangements.append('1')
-    if 'hybrid' in job_arrangement:
-        arrangements.append('2')
-    if 'remote' in job_arrangement:
-        arrangements.append('3')
-    f_jt = ','.join(arrangements)
+    f_wt = ','.join(map_job_arrangements(job_arrangements))
 
     query_params = urlencode(
         {
@@ -69,7 +72,7 @@ def construct_search_url(
             'distance': distance,
             'f_JT': f_jt,
             'f_TPR': f_tpr,
-            'f_WT': f_jt,
+            'f_WT': f_wt,
             'start': start
         }
     )
@@ -91,9 +94,9 @@ def get_job_listings(
         distance: int,
         job_type: str,
         time_posted: str,
-        job_arrangement: str,
+        job_arrangements: typing.List[typing.Literal['onSite', 'hybrid', 'remote']],
         num_results: int
-) -> typing.List:
+) -> typing.List[typing.Dict]:
     """
     Search the LinkedIn job board without authentication.
     :param keywords: The search keywords for the job.
@@ -105,7 +108,7 @@ def get_job_listings(
     :param time_posted: Time of posting of the job relative to the
         time of search. The options are 'pastDay', 'pastWeek', and
         'pastMonth'.
-    :param job_arrangement: The preferred arrangement of the job.
+    :param job_arrangements: The preferred arrangement of the job.
         The options are 'onSite', 'hybrid', and 'remote'.
     :param num_results: The number of search results required.
     :return: The search results.
@@ -118,13 +121,15 @@ def get_job_listings(
             distance=distance,
             job_type=job_type,
             time_posted=time_posted,
-            job_arrangement=job_arrangement,
+            job_arrangements=job_arrangements,
             start=it * 10 + 1
         )
-        for _ in range(10):
+        print(f'Search URL: {search_url}')
+        for _ in range(15):
+            user_agent = UserAgent().random
             response = requests.get(url=str(search_url), headers={'content-type': 'html', 'User-Agent': user_agent})
             soup = BeautifulSoup(response.text, features='html.parser')
-            listings = soup.find_all('div', class_='base-search-card__info')
+            listings = soup.find_all('div', class_=re.compile(r'base-card relative'))
             if listings:
                 job_listings += listings
                 break
@@ -132,21 +137,23 @@ def get_job_listings(
     for job in job_listings:
         try:
             job_title = job.find('h3', class_='base-search-card__title').get_text(strip=True)
+            job_url = job.find('a', class_=re.compile(r'base-card__full-link'))['href']
             company_name = job.find('h4', class_='base-search-card__subtitle').get_text(strip=True)
             location = job.find('span', class_='job-search-card__location').get_text(strip=True)
             hiring_status = job.find('span', class_='job-posting-benefits__text').get_text(strip=True)
             posting_time = job.find('time', class_='job-search-card__listdate--new').get_text(strip=True)
-        except AttributeError:
-            continue
 
-        response.append(
-            {
-                'job_title': job_title,
-                'company_name': company_name,
-                'location': location,
-                'hiring_status': hiring_status,
-                'posting_time': posting_time
-            }
-        )
+            response.append(
+                {
+                    'job_title': job_title,
+                    'job_url': job_url,
+                    'company_name': company_name,
+                    'location': location,
+                    'hiring_status': hiring_status,
+                    'posting_time': posting_time
+                }
+            )
+        except AttributeError:
+            pass
 
     return response

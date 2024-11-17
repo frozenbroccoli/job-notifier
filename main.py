@@ -43,12 +43,12 @@ def main() -> None:
     #     date_posted='past_day'
     # )
     results = linkedin.get_job_listings(
-        keywords='React+Developer',
-        location='Hyderabad',
+        keywords='Software',
+        location='Bangalore',
         distance=25,
         job_type='fullTime',
         time_posted='pastDay',
-        job_arrangement='onSite',
+        job_arrangements=['onSite', 'hybrid'],
         num_results=30
     )
     print(results)
