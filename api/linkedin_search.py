@@ -26,6 +26,21 @@ class JobListings(pydantic.BaseModel):
     hiring_status: str
     posting_time: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "job_title": "Data Integration Engineer",
+                    "job_url": "https://in.linkedin.com/jobs/view/data-integration-engineer-at-ltimindtree-blahblah",
+                    "company_name": "LTIMindtree",
+                    "location": "Greater Kolkata Area",
+                    "hiring_status": "Be an early applicant",
+                    "posting_time": "2 hours ago"
+                }
+            ]
+        }
+    }
+
 
 @app.get("/linkedin/job-listings/")
 def get_linkedin_job_listings(queries: typing.Annotated[SearchQueryParams, fastapi.Query()]) -> list[JobListings]:
