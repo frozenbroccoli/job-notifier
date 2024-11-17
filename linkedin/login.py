@@ -2,7 +2,7 @@ import pickle
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-from chromedriver import chromedriver
+from chromedriver.chromedriver import chromedriver
 import interactions
 from .credentials import get_credentials
 from .urls import urls

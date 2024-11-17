@@ -1,10 +1,8 @@
-import time
 import typing
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 import requests
 import linkedin
-import interactions
 
 
 def get_if_contains(elem: Tag, keyword: str) -> typing.Union[str, None]:
@@ -45,8 +43,8 @@ def main() -> None:
     #     date_posted='past_day'
     # )
     results = linkedin.get_job_listings(
-        keywords='Python+Developer',
-        location='Kolkata',
+        keywords='React+Developer',
+        location='Hyderabad',
         distance=25,
         job_type='fullTime',
         time_posted='pastDay',

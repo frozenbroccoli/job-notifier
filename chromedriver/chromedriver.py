@@ -1,9 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-from fake_useragent import UserAgent
+from .user_agent import user_agent
 
-user_agent = UserAgent().random
+
 chrome_options = Options()
 chrome_options.add_argument(f'user-agent={user_agent}')
 chrome_options.add_argument('--headless')

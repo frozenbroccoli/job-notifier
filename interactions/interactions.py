@@ -1,6 +1,6 @@
 import time
 import random
-from chromedriver import chromedriver, action
+from chromedriver.chromedriver import chromedriver, action
 from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
 
