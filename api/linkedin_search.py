@@ -1,8 +1,10 @@
 import typing
 import fastapi
 import pydantic
-from .. import linkedin
-from .. import app
+import linkedin
+
+
+app = fastapi.FastAPI()
 
 
 class SearchQueryParams(pydantic.BaseModel):
